@@ -10,8 +10,6 @@ class MultivariateTrendOutlierGenerator(MultivariateOutlierGenerator):
         self.trend_since = 0
         self.ongoing_trend = False
 
-        np.random.seed(1337)
-
     def get_value(self, current_timestamp, previous_df):
         start_timestamps = [start for start, _ in self.timestamps]
         end_timestamps = [end for _, end in self.timestamps]

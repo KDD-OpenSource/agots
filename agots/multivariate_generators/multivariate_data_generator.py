@@ -11,7 +11,7 @@ INITIAL_VALUE_MAX = 1
 
 
 class MultivariateDataGenerator:
-    def __init__(self, stream_length, n, k, shift_config=None):
+    def __init__(self, stream_length, n, k, shift_config=None, behavior=None, behavior_config={}):
         """Create multivariate time series using outlier generators
         :param stream_length: number of values in each time series
         :param n: number of time series at all
@@ -19,20 +19,21 @@ class MultivariateDataGenerator:
         one, set k=n.
         :param shift_config: dictionary from index of the time series to how much it should be displaced in time (>=0)
         """
+
         if not shift_config:
             self.shift_config = {}
             self.max_shift = 0
         else:
             self.shift_config = shift_config
             self.max_shift = max(list(self.shift_config.values()))
+        self.behavior = behavior
+        self.behavior_config = behavior_config
 
         self.STREAM_LENGTH = stream_length
         self.N = n
         self.K = k
         self.data = pd.DataFrame()
         self.outlier_data = pd.DataFrame()
-
-        np.random.seed(1337)
 
         assert self.STREAM_LENGTH > 0, "stream_length must at least be 1"
         assert self.N > 0, "n must at least be 1"
@@ -68,7 +69,7 @@ class MultivariateDataGenerator:
         # Each one should start at index max_shift - own_shift such that the padded measurements of a time series before
         # the origin time series starts descend from a self-correlating distribution
         for k, column_name in enumerate(df.columns):
-            own_shift = 0 if not k in self.shift_config.keys() else self.shift_config[k]
+            own_shift = 0 if k not in self.shift_config.keys() else self.shift_config[k]
             df[column_name] = df[column_name].shift(own_shift)
 
         df.dropna(axis=0, inplace=True)
@@ -91,12 +92,18 @@ class MultivariateDataGenerator:
         else:
             start = initial_value_min
 
+        if self.behavior is not None:
+            behavior_generator = self.behavior(**self.behavior_config)
+
         # Create basic time series
         x = [start]
         timestamps = [0]
         for i in range(1, self.STREAM_LENGTH + self.max_shift):
             timestamps.append(i)
-            x.append(x[i - 1] + (np.random.random() - 0.5))
+            value = x[i - 1] + (np.random.random() - 0.5)
+            if self.behavior is not None:
+                value += next(behavior_generator)
+            x.append(value)
         df['x0'] = x
         df['timestamp'] = timestamps
         df.set_index('timestamp', inplace=True)
@@ -132,13 +139,18 @@ class MultivariateDataGenerator:
     def create_not_correlating_time_series(self, k, n, correlation_max, df, initial_value_min=INITIAL_VALUE_MIN,
                                            initial_value_max=INITIAL_VALUE_MAX):
         for index_not_correlation in range(k, n):
+            if self.behavior is not None:
+                behavior_generator = self.behavior(**self.behavior_config)
             while True:
                 if initial_value_min != initial_value_max:
                     x = [np.random.randint(initial_value_min, initial_value_max)]
                 else:
                     x = [initial_value_min]
                 for index_timeseries_length in range(self.STREAM_LENGTH - 1 + self.max_shift):
-                    x.append(x[index_timeseries_length] + (np.random.random() - 0.5))
+                    value = x[index_timeseries_length] + (np.random.random() - 0.5)
+                    if self.behavior is not None:
+                        value += next(behavior_generator)
+                    x.append(value)
                 df['x' + str(index_not_correlation)] = x
                 if abs(df.corr().iloc[0, index_not_correlation]) <= correlation_max:
                     break
