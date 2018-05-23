@@ -11,7 +11,7 @@ INITIAL_VALUE_MAX = 1
 
 
 class MultivariateDataGenerator:
-    def __init__(self, stream_length, n, k, shift_config=None, behavior=None, behavior_config={}):
+    def __init__(self, stream_length, n, k, shift_config=None, behavior=None, behavior_config=None):
         """Create multivariate time series using outlier generators
         :param stream_length: number of values in each time series
         :param n: number of time series at all
@@ -27,7 +27,8 @@ class MultivariateDataGenerator:
             self.shift_config = shift_config
             self.max_shift = max(list(self.shift_config.values()))
         self.behavior = behavior
-        self.behavior_config = behavior_config
+        if behavior_config is None:
+            self.behavior_config = {}
 
         self.STREAM_LENGTH = stream_length
         self.N = n
