@@ -9,8 +9,6 @@ class MultivariateExtremeOutlierGenerator(MultivariateOutlierGenerator):
         self.value = value
         self.VALUE_FACTOR = 5
 
-        np.random.seed(1337)
-
     def get_value(self, current_timestamp, previous_df):
         if current_timestamp in self.timestamps:
             if self.value is None:
