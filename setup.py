@@ -10,7 +10,7 @@ setup(
     author='Sebastian Bischoff, Willi Gierke',
     description='Anomaly Generator on Time Series',
     long_description=open('README.md').read(),
-    version='0.0',
+    version='0.1',
     packages=[],
     scripts=[],
     install_requires=parse_requirements('requirements.txt'),
