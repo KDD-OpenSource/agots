@@ -27,8 +27,7 @@ class MultivariateDataGenerator:
             self.shift_config = shift_config
             self.max_shift = max(list(self.shift_config.values()))
         self.behavior = behavior
-        if behavior_config is None:
-            self.behavior_config = {}
+        self.behavior_config = behavior_config if behavior_config is not None else {}
 
         self.STREAM_LENGTH = stream_length
         self.N = n
@@ -42,8 +41,8 @@ class MultivariateDataGenerator:
         assert self.K <= self.N, "k must be less than or equal to n"
         assert 0 not in self.shift_config.keys(), "The origin time series can't be shifted in time"
 
-        if k == 1:  # There is no difference between k=0 and k=1. Semantically, setting k to 0 makes more sense.
-            self.K = 0
+        if k == 0:  # There is no difference between k=0 and k=1.
+            self.K = 1
 
     def generate_baseline(self, correlation_min=0.9, correlation_max=0.7, initial_value_min=INITIAL_VALUE_MIN,
                           initial_value_max=INITIAL_VALUE_MAX):
