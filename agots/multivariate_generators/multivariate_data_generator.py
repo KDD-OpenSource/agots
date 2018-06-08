@@ -35,11 +35,11 @@ class MultivariateDataGenerator:
         self.data = pd.DataFrame()
         self.outlier_data = pd.DataFrame()
 
-        assert self.STREAM_LENGTH > 0, "stream_length must at least be 1"
-        assert self.N > 0, "n must at least be 1"
-        assert self.K >= 0, "k must at least be 0"
-        assert self.K <= self.N, "k must be less than or equal to n"
-        assert 0 not in self.shift_config.keys(), "The origin time series can't be shifted in time"
+        assert self.STREAM_LENGTH > 0, 'stream_length must at least be 1'
+        assert self.N > 0, 'n must at least be 1'
+        assert self.K >= 0, 'k must at least be 0'
+        assert self.K <= self.N, 'k must be less than or equal to n'
+        assert 0 not in self.shift_config.keys(), 'The origin time series cannot be shifted in time'
 
         if k == 0:  # There is no difference between k=0 and k=1.
             self.K = 1
@@ -75,14 +75,14 @@ class MultivariateDataGenerator:
         df.dropna(axis=0, inplace=True)
         df.reset_index(inplace=True, drop=True)
 
-        assert not df.isnull().values.any(), "There is at least one NaN in the generated DataFrame"
+        assert not df.isnull().values.any(), 'There is at least one NaN in the generated DataFrame'
         self.data = df
         return self.data
 
     def init_dataframe(self, number_time_series):
         columns = ['timestamp']
         for value_column_index in range(number_time_series):
-            columns.append("x{}".format(value_column_index))
+            columns.append('x{}'.format(value_column_index))
         df = pd.DataFrame(columns=columns)
         return df
 
@@ -129,8 +129,8 @@ class MultivariateDataGenerator:
                     # Take 50% of time series 0 and add 50% randomness
                     original_value = df.iloc[index_timeseries_length, 0] - origin_offset
                     x.append(0.5 * original_value + 0.5 * (np.random.random() - 0.5))
-                df["x" + str(index_correlating)] = x
-                df["x" + str(index_correlating)] += offset
+                df['x' + str(index_correlating)] = x
+                df['x' + str(index_correlating)] += offset
                 if abs(df.corr().iloc[0, index_correlating]) >= correlation_min:
                     break
             assert (len(df) == self.STREAM_LENGTH + self.max_shift)
@@ -176,26 +176,26 @@ class MultivariateDataGenerator:
 
         # Validate the input
         for outlier_key, outlier_generator_config in config.items():
-            assert outlier_key in OUTLIER_GENERATORS, "outlier_key must be one of {} but was".format(OUTLIER_GENERATORS,
+            assert outlier_key in OUTLIER_GENERATORS, 'outlier_key must be one of {} but was'.format(OUTLIER_GENERATORS,
                                                                                                      outlier_key)
             generator_keys.append(outlier_key)
             for outlier_timeseries_config in outlier_generator_config:
                 n, timestamps = outlier_timeseries_config['n'], outlier_timeseries_config['timestamps']
-                assert n in range(self.N), "n must be between 0 and {} but was {}".format(self.N - 1, n)
+                assert n in range(self.N), 'n must be between 0 and {} but was {}'.format(self.N - 1, n)
                 for timestamp in list(sum(timestamps, ())):
                     assert timestamp in range(
-                        self.STREAM_LENGTH), "timestamp must be between 0 and {} but was {}".format(self.STREAM_LENGTH,
+                        self.STREAM_LENGTH), 'timestamp must be between 0 and {} but was {}'.format(self.STREAM_LENGTH,
                                                                                                     timestamp)
 
         df = self.data
         if self.data.shape == (0, 0):
-            raise Exception("You have to first compute a base line by invoking generate_baseline()")
+            raise Exception('You have to first compute a base line by invoking generate_baseline()')
         for generator_key in generator_keys:
             for outlier_timeseries_config in config[generator_key]:
-                n, timestamps = outlier_timeseries_config['n'], outlier_timeseries_config['timestamps']
-                generator = OUTLIER_GENERATORS[generator_key](timestamps=timestamps)
+                n, timestamps = outlier_timeseries_config.pop('n'), outlier_timeseries_config.pop('timestamps')
+                generator = OUTLIER_GENERATORS[generator_key](timestamps=timestamps, **outlier_timeseries_config)
                 df[df.columns[n]] += generator.add_outliers(self.data[self.data.columns[n]])
 
-        assert not df.isnull().values.any(), "There is at least one NaN in the generated DataFrame"
+        assert not df.isnull().values.any(), 'There is at least one NaN in the generated DataFrame'
         self.outlier_data = df
         return df
