@@ -192,8 +192,9 @@ class MultivariateDataGenerator:
             raise Exception('You have to first compute a base line by invoking generate_baseline()')
         for generator_key in generator_keys:
             for outlier_timeseries_config in config[generator_key]:
-                n, timestamps = outlier_timeseries_config.pop('n'), outlier_timeseries_config.pop('timestamps')
-                generator = OUTLIER_GENERATORS[generator_key](timestamps=timestamps, **outlier_timeseries_config)
+                n, timestamps = outlier_timeseries_config['n'], outlier_timeseries_config['timestamps']
+                generator_args = dict([(k, v) for k, v in outlier_timeseries_config.items() if k not in ['n', 'timestamps']])
+                generator = OUTLIER_GENERATORS[generator_key](timestamps=timestamps, **generator_args)
                 df[df.columns[n]] += generator.add_outliers(self.data[self.data.columns[n]])
 
         assert not df.isnull().values.any(), 'There is at least one NaN in the generated DataFrame'
