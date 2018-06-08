@@ -9,7 +9,7 @@ class MultivariateVarianceOutlierGenerator(MultivariateOutlierGenerator):
         self.VARIANCE_FACTOR = variance_factor
         self.ongoing_variance = False
 
-    def get_value(self, current_timestamp, previous_df):
+    def get_value(self, current_timestamp, timeseries):
         start_timestamps = [start for start, _ in self.timestamps]
         end_timestamps = [end for _, end in self.timestamps]
 
@@ -22,8 +22,8 @@ class MultivariateVarianceOutlierGenerator(MultivariateOutlierGenerator):
         else:
             return 0
 
-    def add_outliers(self, df):
+    def add_outliers(self, timeseries):
         additional_values = []
-        for timestamp_index in range(len(df)):
+        for timestamp_index in range(len(timeseries)):
             additional_values.append(self.get_value(timestamp_index, None))
         return additional_values

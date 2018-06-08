@@ -2,8 +2,8 @@ class MultivariateOutlierGenerator:
     def __init__(self, timestamps):
         self.timestamps = timestamps
 
-    def get_values(self, current_timestamp, previous_df):
+    def get_value(self, current_timestamp, timeseries):
         return NotImplementedError
 
-    def add_outliers(self, df):
+    def add_outliers(self, timeseries):
         return NotImplementedError

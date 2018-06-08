@@ -9,18 +9,18 @@ class MultivariateExtremeOutlierGenerator(MultivariateOutlierGenerator):
         self.value = value
         self.VALUE_FACTOR = 5
 
-    def get_value(self, current_timestamp, previous_df):
+    def get_value(self, current_timestamp, timeseries):
         if current_timestamp in self.timestamps:
             if self.value is None:
-                previous_mean = previous_df.mean()
-                return np.random.random() + previous_mean * self.VALUE_FACTOR
+                local_mean = timeseries.iloc[max(0, current_timestamp - 10):current_timestamp + 10].mean()
+                return np.random.random() + local_mean * self.VALUE_FACTOR
             else:
                 return self.value
         else:
             return 0
 
-    def add_outliers(self, df):
+    def add_outliers(self, timeseries):
         additional_values = []
-        for timestamp_index in range(len(df)):
-            additional_values.append(self.get_value(timestamp_index, df.iloc[:timestamp_index]))
+        for timestamp_index in range(len(timeseries)):
+            additional_values.append(self.get_value(timestamp_index, timeseries))
         return additional_values

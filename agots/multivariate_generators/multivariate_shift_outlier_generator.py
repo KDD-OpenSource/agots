@@ -12,7 +12,7 @@ class MultivariateShiftOutlierGenerator(MultivariateOutlierGenerator):
         self.MEAN_FACTOR = 5
         self.ongoing_shift = False
 
-    def get_value(self, current_timestamp, previous_df_series):
+    def get_value(self, current_timestamp, timeseries):
         start_timestamps = [start for start, _ in self.timestamps]
         end_timestamps = [end for _, end in self.timestamps]
 
@@ -23,15 +23,16 @@ class MultivariateShiftOutlierGenerator(MultivariateOutlierGenerator):
             self.ongoing_shift = True
             if self.value is None:
                 if self.SHIFT_VALUE is None:
-                    self.SHIFT_VALUE = previous_df_series.mean() * self.MEAN_FACTOR
+                    local_mean = timeseries.iloc[max(0, current_timestamp - 10):current_timestamp + 10].mean()
+                    self.SHIFT_VALUE = local_mean * self.MEAN_FACTOR
                 return np.random.random() + self.SHIFT_VALUE
             else:
                 return self.value
         else:
             return 0
 
-    def add_outliers(self, df):
+    def add_outliers(self, timeseries):
         additional_values = []
-        for timestamp_index in range(len(df)):
-            additional_values.append(self.get_value(timestamp_index, df.iloc[:timestamp_index]))
+        for timestamp_index in range(len(timeseries)):
+            additional_values.append(self.get_value(timestamp_index, timeseries))
         return additional_values
