@@ -4,14 +4,14 @@ from .base import MultivariateOutlierGenerator
 
 
 class MultivariateExtremeOutlierGenerator(MultivariateOutlierGenerator):
-    def __init__(self, timestamps=None, value=1):
+    def __init__(self, timestamps=None, factor=1):
         self.timestamps = [] if timestamps is None else list(sum(timestamps, ()))
-        self.value = value
+        self.factor = factor
 
     def get_value(self, current_timestamp, timeseries):
         if current_timestamp in self.timestamps:
             local_std = timeseries.iloc[max(0, current_timestamp - 10):current_timestamp + 10].std()
-            return np.random.choice([-1, 1]) * self.value * local_std
+            return np.random.choice([-1, 1]) * self.factor * local_std
         else:
             return 0
 

@@ -4,26 +4,14 @@ from .base import MultivariateOutlierGenerator
 
 
 class MultivariateVarianceOutlierGenerator(MultivariateOutlierGenerator):
-    def __init__(self, timestamps=None, variance_factor=3):
+    def __init__(self, timestamps=None, factor=3):
         self.timestamps = timestamps or []
-        self.VARIANCE_FACTOR = variance_factor
-        self.ongoing_variance = False
-
-    def get_value(self, current_timestamp, timeseries):
-        start_timestamps = [start for start, _ in self.timestamps]
-        end_timestamps = [end for _, end in self.timestamps]
-
-        if current_timestamp in end_timestamps:
-            self.ongoing_variance = False
-
-        if current_timestamp in start_timestamps or self.ongoing_variance:
-            self.ongoing_variance = True
-            return np.random.random() * self.VARIANCE_FACTOR
-        else:
-            return 0
+        self.factor = factor
 
     def add_outliers(self, timeseries):
-        additional_values = []
-        for timestamp_index in range(len(timeseries)):
-            additional_values.append(self.get_value(timestamp_index, None))
+        additional_values = np.zeros(timeseries.size)
+        for start, end in self.timestamps:
+            difference = np.diff(timeseries[start-1:end]) if start > 0 \
+                         else np.insert(np.diff(timeseries[start:end], 0, 0))
+            additional_values[list(range(start, end, 1))] = (self.factor - 1) * difference
         return additional_values
