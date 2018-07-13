@@ -4,7 +4,7 @@ from .base import MultivariateOutlierGenerator
 
 
 class MultivariateShiftOutlierGenerator(MultivariateOutlierGenerator):
-    def __init__(self, timestamps=None, factor=5):
+    def __init__(self, timestamps=None, factor=8):
         timestamps = timestamps or []
         self.timestamps = timestamps
         self.factor = factor

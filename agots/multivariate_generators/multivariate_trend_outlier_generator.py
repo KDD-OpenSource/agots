@@ -4,9 +4,9 @@ from .base import MultivariateOutlierGenerator
 
 
 class MultivariateTrendOutlierGenerator(MultivariateOutlierGenerator):
-    def __init__(self, timestamps=None, factor=0.06):
+    def __init__(self, timestamps=None, factor=8):
         self.timestamps = timestamps or []
-        self.factor = factor
+        self.factor = factor / 40  # Adjust for trend
 
     def add_outliers(self, timeseries):
         additional_values = np.zeros(timeseries.size)

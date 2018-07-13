@@ -4,7 +4,7 @@ from .base import MultivariateOutlierGenerator
 
 
 class MultivariateVarianceOutlierGenerator(MultivariateOutlierGenerator):
-    def __init__(self, timestamps=None, factor=3):
+    def __init__(self, timestamps=None, factor=8):
         self.timestamps = timestamps or []
         self.factor = factor
 

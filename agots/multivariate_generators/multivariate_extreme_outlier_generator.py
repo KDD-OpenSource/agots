@@ -4,7 +4,7 @@ from .base import MultivariateOutlierGenerator
 
 
 class MultivariateExtremeOutlierGenerator(MultivariateOutlierGenerator):
-    def __init__(self, timestamps=None, factor=1):
+    def __init__(self, timestamps=None, factor=8):
         self.timestamps = [] if timestamps is None else list(sum(timestamps, ()))
         self.factor = factor
 
