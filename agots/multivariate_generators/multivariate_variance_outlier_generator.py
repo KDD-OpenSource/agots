@@ -13,5 +13,5 @@ class MultivariateVarianceOutlierGenerator(MultivariateOutlierGenerator):
         for start, end in self.timestamps:
             difference = np.diff(timeseries[start-1:end]) if start > 0 \
                          else np.insert(np.diff(timeseries[start:end], 0, 0))
-            additional_values[list(range(start, end, 1))] = (self.factor - 1) * difference
+            additional_values[list(range(start, end))] += (self.factor - 1) * difference
         return additional_values
