@@ -100,7 +100,7 @@ class MultivariateDataGenerator:
         timestamps = [0]
         for i in range(1, self.STREAM_LENGTH + self.max_shift):
             timestamps.append(i)
-            value = x[i - 1] + (np.random.random() - 0.5)
+            value = x[i - 1] + np.random.normal(0, 1)
             if self.behavior is not None:
                 value += next(behavior_generator)
             x.append(value)
